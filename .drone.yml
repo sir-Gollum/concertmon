@@ -1,0 +1,44 @@
+---
+kind: pipeline
+type: docker
+name: default
+concurrency:
+  limit: 1
+
+steps:
+- name: monitor
+  image: sg-concerts-monitor
+  pull: never
+  commands:
+  # setup env
+  - export OUTPUT="concertmon-output.txt"
+  # run
+  - date > $${OUTPUT}
+  - rc=0
+  - python3 monitor.py >> $${OUTPUT} 2>&1 || rc=$?
+  - cat $${OUTPUT}
+  # upload
+  - curl --upload-file "$${OUTPUT}" -u $${SMB_CREDS} $${SMB_URL}
+  # fail or succeed
+  - |
+    if [ "$rc" -ne "0" ]; then
+      echo 'Monitor failed!'
+      exit "${rc}"
+    fi
+
+  environment:
+    LASTFM_PAGES_TO_FETCH: 20
+    LASTFM_USERNAME:
+      from_secret: LASTFM_USERNAME
+    LASTFM_API_KEY:
+      from_secret: LASTFM_API_KEY
+    EMAIL:
+      from_secret: EMAIL
+    COUNTRIES:
+      from_secret: COUNTRIES
+    CITIES:
+      from_secret: CITIES
+    SMB_URL:
+      from_secret: SMB_URL
+    SMB_CREDS:
+      from_secret: SMB_CREDS
