@@ -12,6 +12,8 @@ def check_bands(bands, email):
     result = []
     bands_to_check = bands
     bands_to_retry = []
+    retries = 5
+
     while True:
         for b in bands_to_check:
             print(f'Checking band "{b.name}"...')
@@ -76,6 +78,11 @@ def check_bands(bands, email):
             time.sleep(random.choice(range(10)))
             bands_to_check = bands_to_retry
             bands_to_retry = []
+            if retries:
+                retries -= 1
+            else:
+                print('No retries left')
+                break
         else:
             break
 
