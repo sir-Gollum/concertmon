@@ -25,6 +25,9 @@ class Event(object):
     def __str__(self):
         return f'<{self.title.title()} - {self.bands.title()} playing at {self.dt}>'
 
+    def __repr__(self):
+        return self.__str__()
+
 
 class BackstageEvent(Event):
     def is_interesting(self, favourite_bands):
@@ -86,12 +89,13 @@ class BandsInTownEvent(Event):
         if lcountries:
             if (
                 any(c in lc for c in lcountries)
-                and any(c in ltb for c in lcities)
+                or any(c in ltb for c in lcities)
             ):
                 return True
         else:
             if any(c in ltb for c in lcities):
                 return True
+
         return False
 
 
