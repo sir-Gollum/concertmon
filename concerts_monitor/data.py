@@ -82,20 +82,23 @@ class BandsInTownEvent(Event):
         return datetime.datetime.strptime(dt, '%Y-%m-%dT%H:%M')
 
     def is_interesting(self, countries, cities):
-        ltb = self.title.lower() + self.bands.lower()
-        lc = self.country.lower()
-        lcities = [c.lower() for c in cities]
-        lcountries = [c.lower() for c in countries]
+        event_country = self.country.lower()
+        event_city = self.city.lower()
 
-        if lcountries:
-            if (
-                any(c in lc for c in lcountries)
-                or any(c in ltb for c in lcities)
-            ):
-                return True
-        else:
-            if any(c in ltb for c in lcities):
-                return True
+        target_countries = [c.lower() for c in countries]
+        target_cities = [c.lower() for c in cities]
+
+        has_country_match = any(c in event_country for c in target_countries)
+        has_city_match = any(c in event_city for c in target_cities)
+
+        if target_countries and target_cities:
+            return has_country_match and has_city_match
+
+        elif target_countries:
+            return has_country_match
+
+        elif target_cities:
+            return has_city_match
 
         return False
 

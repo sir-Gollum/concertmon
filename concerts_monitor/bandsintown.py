@@ -48,7 +48,7 @@ def check_bands(bands, email):
                     continue
 
                 for concert in rj:
-                    # todo: http://rest.bandsintown.com/artists/Feuerschwanz/events?api_version=3.0&app_id=sirg-parser-3(sir.gollum@gmail.com)
+                    # todo: https://rest.bandsintown.com/artists/Feuerschwanz/events?api_version=3.0&app_id=sirg-parser-3(sir.gollum@gmail.com)
 
                     # concert['artists'] is a list
                     try:

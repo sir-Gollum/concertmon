@@ -31,16 +31,16 @@ if __name__ == '__main__':
     bit_events = [e for e in bit_events if e.is_interesting(countries=COUNTRIES, cities=CITIES)]
     bit_events.sort(key=lambda x: x.dt)
 
-    bit_report = PrettyTable(["Title", "Bands", "Country", "Date"])
+    bit_report = PrettyTable(["Bands", "Title", "Location", "Date"])
     bit_report.align['Bands'] = 'l'    
     bit_report.align['Title'] = 'l'
     bit_report.align['Date'] = 'l'
-    bit_report.align['Country'] = 'l'
+    bit_report.align['Location'] = 'l'
     for e in bit_events:
         bit_report.add_row([
             e.bands,
-            e.title.title(),                        
-            e.country,
+            e.title.title(),
+            ', '.join([e.city, e.country]),
             e.dt.strftime('%a, %d.%m.%Y %H:%M'),            
         ])
 
@@ -58,6 +58,7 @@ if __name__ == '__main__':
             e.dt.strftime('%a, %d.%m.%Y %H:%M')
         ])
 
+    print("\n========== Reports ==========")
     print("Bands-in-town events:")
     print(bit_report)
     print("Backstage events:")
