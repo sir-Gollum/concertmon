@@ -31,7 +31,7 @@ def check_bands(bands, email):
                 continue
 
             try:
-                print(f'Response: {resp.text[:50]}')
+                print(f'Response: {resp.text[:100].strip()}')
 
                 if (
                     '{warn=Not found}' in resp.text 
@@ -48,11 +48,12 @@ def check_bands(bands, email):
                     continue
 
                 for concert in rj:
-                    # todo: http://api.bandsintown.com/artists/Feuerschwanz/events?api_version=3.0&app_id=sirg-parser-3(sir.gollum@gmail.com)
-                    # city = concert['venue']['city']
+                    # todo: http://rest.bandsintown.com/artists/Feuerschwanz/events?api_version=3.0&app_id=sirg-parser-3(sir.gollum@gmail.com)
+
                     # concert['artists'] is a list
                     try:
                         country = concert['venue']['country']
+                        city = concert['venue']['city']
                         title = concert['venue']['name']
                         datetime = concert['datetime']
                     except KeyError as e:
@@ -63,7 +64,8 @@ def check_bands(bands, email):
                         title=title,
                         bands=b.name,
                         dt=datetime,
-                        country=country
+                        country=country,
+                        city=city,
                     ))
             except json.decoder.JSONDecodeError as e:
                 print(f'Got a json decode error on {b}, skipping')

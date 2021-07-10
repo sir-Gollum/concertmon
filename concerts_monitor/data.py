@@ -13,17 +13,18 @@ class Band(object):
 
 
 class Event(object):
-    def __init__(self, title: str, bands: str, dt: str, country: str='Germany'):
+    def __init__(self, title: str, bands: str, dt: str, country: str='Germany', city: str='Munich'):
         self.title = title
         self.bands = bands
         self.country = country
+        self.city = city
         self.dt = self.parse_datetime(dt)
 
     def parse_datetime(self, dt):
         raise NotImplementedError('Should be implemented in a child class')
 
     def __str__(self):
-        return f'<{self.title.title()} - {self.bands.title()} playing at {self.dt}>'
+        return f'<{self.title.title()} - {self.bands.title()} playing in {self.city} at {self.dt}>'
 
     def __repr__(self):
         return self.__str__()
