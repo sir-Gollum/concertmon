@@ -2,7 +2,7 @@
 
 import os
 
-from prettytable import PrettyTable
+from prettytable import PrettyTable, ALL
 from concerts_monitor import last_fm
 from concerts_monitor import bandsintown
 from concerts_monitor import backstage
@@ -56,12 +56,16 @@ if __name__ == '__main__':
     bs_events = backstage.sort_and_deduplicate_events(backstage.get_backstage_events())
     print(f'Got {len(bs_events)} backstage events')
 
-    bs_report = PrettyTable(["!!!", "Title", "Date"])
-    bs_report.align['Title'] = 'l'
-    bs_report.align['Date'] = 'l'
+    table_keys = ["Matches", "Title", "Date"]
+    bs_report = PrettyTable(table_keys, hrules=ALL)
+    for k in table_keys:
+        bs_report.align[k] = 'l'
+
     for e in bs_events:
+        m = e.match_favourite(whitelisted_bands)
         bs_report.add_row([
-            '!!!' if e.is_interesting(whitelisted_bands) else '',
+            '\n'.join([str(band) for band in m]) if m else '',
+            # '!!!' if e.is_interesting(whitelisted_bands) else '',
             e.title.title(),
             e.dt.strftime('%a, %d.%m.%Y %H:%M')
         ])
