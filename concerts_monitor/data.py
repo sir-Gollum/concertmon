@@ -1,5 +1,6 @@
 # coding: utf-8
 import datetime
+from typing import Union, List
 
 
 class Band(object):
@@ -11,10 +12,14 @@ class Band(object):
     def __str__(self):
         return f'<{self.name}, pc: {self.playcount}>'
 
+    def __repr__(self):
+        return str(self)
+
 
 class Event(object):
-    def __init__(self, title: str, bands: str, dt: str, country: str='Germany', city: str='Munich'):
+    def __init__(self, title: str, bands: Union[str, Band], dt: str, country: str='Germany', city: str='Munich'):
         self.title = title
+        # `Band` in case of bandsintown, str in case of backstage and other similar sites where we go from events
         self.bands = bands
         self.country = country
         self.city = city
@@ -27,17 +32,24 @@ class Event(object):
         return f'<{self.title.title()} - {self.bands.title()} playing in {self.city} at {self.dt}>'
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
 
 class BackstageEvent(Event):
-    def is_interesting(self, favourite_bands):
-        ltb = self.title.lower() + self.bands.lower()
-        # TODO: fuzzy match, mark matching substring with color etc.
+    def match_favourite(self, favourite_bands: List[Band], top=3) -> List[Band]:
+        search_str = (self.title + self.bands).lower()
+        res = []
+
         for b in favourite_bands:
-            if b.lname in ltb:
-                return True
-        return False
+            if b.lname in search_str:
+                res.append(b)
+
+        res = sorted(res, key=lambda x: -x.playcount)
+
+        return res[:top]
+
+    def is_interesting(self, favourite_bands):
+        return bool(self.match_favourite(favourite_bands))
 
     def parse_datetime(self, dt):
         result = dt
