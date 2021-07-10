@@ -61,6 +61,8 @@ if __name__ == '__main__':
 
     for e in bs_events:
         m = e.match_favourite(whitelisted_bands)
+        if not m or 'abgesagt' in e.title.lower():
+            continue
         bs_report.add_row([
             '\n'.join([str(band) for band in m]) if m else '',
             # '!!!' if e.is_interesting(whitelisted_bands) else '',
