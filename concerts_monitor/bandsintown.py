@@ -62,7 +62,7 @@ def check_bands(bands, email):
 
                     result.append(BandsInTownEvent(
                         title=title,
-                        bands=b.name,
+                        bands=b,
                         dt=datetime,
                         country=country,
                         city=city,
