@@ -40,8 +40,8 @@ if __name__ == '__main__':
         bit_report.add_row([
             e.bands,
             e.title.title(),                        
-            e.dt.strftime('%a, %d.%m.%Y %H:%M'),
             e.country,
+            e.dt.strftime('%a, %d.%m.%Y %H:%M'),            
         ])
 
     # Backstage
