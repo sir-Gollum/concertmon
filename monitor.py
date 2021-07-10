@@ -7,6 +7,7 @@ from prettytable import PrettyTable
 from concerts_monitor import last_fm
 from concerts_monitor import bandsintown
 from concerts_monitor import backstage
+from concerts_monitor import data
 
 if __name__ == '__main__':
     LASTFM_USERNAME = os.environ['LASTFM_USERNAME']
@@ -17,7 +18,13 @@ if __name__ == '__main__':
     COUNTRIES = os.environ.get('COUNTRIES').split()
     CITIES = os.environ.get('CITIES').split()
 
-    bands = last_fm.get_top_bands(LASTFM_PAGES_TO_FETCH, LASTFM_USERNAME, LASTFM_API_KEY)
+    DEBUG_BANDS = os.environ.get('DEBUG_BANDS')
+
+    if DEBUG_BANDS:
+        bands = [data.Band(b, 123) for b in DEBUG_BANDS.split(',')]
+    else:
+        bands = last_fm.get_top_bands(LASTFM_PAGES_TO_FETCH, LASTFM_USERNAME, LASTFM_API_KEY)
+
     print(f'Got {len(bands)} bands')
     with open(os.path.join(os.path.dirname(__file__), 'bands_blacklist.txt')) as f:
         blacklist = set([l.strip() for l in f.read().split(u'\n')])
