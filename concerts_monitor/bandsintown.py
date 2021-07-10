@@ -18,7 +18,7 @@ def check_bands(bands, email):
         for b in bands_to_check:
             print(f'Checking band "{b.name}"...')
             encoded_name = quote(b.name)
-            url = f'http://rest.bandsintown.com/artists/{encoded_name}/events'
+            url = f'https://rest.bandsintown.com/artists/{encoded_name}/events'
             # print(f'Checking url {url}')
 
             params = {
