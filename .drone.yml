@@ -11,12 +11,13 @@ steps:
   pull: never
   commands:
   # setup env
+  - export TEMP="concertmon-temp.txt"
   - export OUTPUT="concertmon-output.txt"
   # run
-  - date > $${OUTPUT}
   - rc=0
-  - python3 monitor.py >> $${OUTPUT} 2>&1 || rc=$?
-  - cat $${OUTPUT}
+  - python3 monitor.py >> $${TEMP} 2>&1 || rc=$?
+  - cat $${TEMP}
+  - cat $${TEMP} | grep -A 50000 'Reports' > $${OUTPUT}  # 50k should be enough :)
   # upload
   - curl --upload-file "$${OUTPUT}" -u $${SMB_CREDS} $${SMB_URL}
   # fail or succeed
