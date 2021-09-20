@@ -1,15 +1,27 @@
 concertmon:
     build: .
     container_name: concertmon
-    environment: 
+    environment:
+      # Comma-separated lists of countries and cities to monitor.
+      #
+      # if both are set, the script will output events that are in a city AND in a country from a list
+      # e.g. for COUNTRIES="US,Germany" and CITIES="Berlin" it would also return concerts in Berlin, NH.
+      COUNTRIES: "Germany,Deutschland"
+      CITIES: "Munich,München"
+
+      # Supported are any values tabulate (https://pypi.org/project/tabulate/) supports
+      OUTPUT_FORMAT_BANDSINTOWN: github
+      OUTPUT_FORMAT_BACKSTAGE: grid
+
+      # Last.fm data (source of band interests)
       LASTFM_PAGES_TO_FETCH: 20
       LASTFM_USERNAME: "Get from https://www.last.fm/api/account/create"
       LASTFM_API_KEY: "Get from https://www.last.fm/api/account/create"
-      EMAIL: "Your email to send to bandsintown API (they ask for it)"
-      # Comma-separated list of countries to monitor
-      COUNTRIES: "Germany,Deutschland"
-      # Comma-separated list of cities in those countries to monitor
-      CITIES: "Munich,München"
-    volumes: 
+
+      # Set to False to skip data mining with bandsintown
+      USE_BANDSINTOWN: True
+      BANDSINTOWN_EMAIL: "Your email to send to bandsintown API (they ask for it)"
+
+    volumes:
       - .:/concertmon
     command: python3 -u concertmon/monitor.py

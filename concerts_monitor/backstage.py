@@ -2,7 +2,7 @@
 import os
 import requests
 from lxml import html
-from prettytable import PrettyTable
+import tabulate
 from .last_fm import get_top_bands
 from .data import BackstageEvent
 
@@ -69,15 +69,13 @@ if __name__ == '__main__':
     whitelisted_bands = [b for b in bands if b.name not in blacklist]
     print(f'Left with {len(whitelisted_bands)} after filtering')
 
-    x = PrettyTable(["!!!", "Title", "Date"])
-    x.align['Title'] = 'l'
-    x.align['Date'] = 'l'
+    table = []
     for e in events:
-        x.add_row([
-            '!!!' if e.is_interesting(whitelisted_bands) else '', 
-            e.title.title(),
-            e.dt.strftime('%a, %d.%m.%Y %H:%M')
-        ])
+        table.append({
+            '!!!': '!!!' if e.is_interesting(whitelisted_bands) else '',
+            'Title': e.title.title(),
+            'Date': e.dt.strftime('%a, %d.%m.%Y %H:%M')
+        })
 
     print("Events:")
-    print(x)
+    print(tabulate.tabulate(table, headers='keys', tablefmt='github'))
