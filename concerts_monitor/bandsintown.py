@@ -19,7 +19,6 @@ def check_bands(bands, email):
             print(f'Checking band "{b.name}"...')
             encoded_name = quote(b.name)
             url = f'https://rest.bandsintown.com/artists/{encoded_name}/events'
-            # print(f'Checking url {url}')
 
             params = {
                 'api_version': '3.0',
@@ -48,9 +47,6 @@ def check_bands(bands, email):
                     continue
 
                 for concert in rj:
-                    # todo: https://rest.bandsintown.com/artists/Feuerschwanz/events?api_version=3.0&app_id=sirg-parser-3(sir.gollum@gmail.com)
-
-                    # concert['artists'] is a list
                     try:
                         country = concert['venue']['country']
                         city = concert['venue']['city']

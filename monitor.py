@@ -27,7 +27,7 @@ if __name__ == '__main__':
 
     bands = last_fm.get_top_bands(LASTFM_PAGES_TO_FETCH, LASTFM_USERNAME, LASTFM_API_KEY)
     if os.environ.get('DEBUG_BANDS'):
-        bands = [b for b in bands if b.name in os.environ['DEBUG_BANDS'].split(',')]
+        bands = [b for b in bands if b.name.lower() in os.environ['DEBUG_BANDS'].lower().split(',')]
 
     print(f'Got {len(bands)} bands')
     with open(os.path.join(os.path.dirname(__file__), 'bands_blacklist.txt')) as f:
