@@ -11,6 +11,7 @@ concertmon:
 
       # Supported are any values tabulate (https://pypi.org/project/tabulate/) supports
       OUTPUT_FORMAT_BANDSINTOWN: github
+      OUTPUT_FORMAT_SONGKICK: github
       OUTPUT_FORMAT_BACKSTAGE: grid
 
       # Last.fm data (source of band interests)
@@ -21,6 +22,10 @@ concertmon:
       # Set to False to skip data mining with bandsintown
       USE_BANDSINTOWN: True
       BANDSINTOWN_EMAIL: "Your email to send to bandsintown API (they ask for it)"
+
+      # Set to False to skip data mining with bandsintown
+      USE_SONGKICK: True
+      SONGKICK_API_KEY: "Your songkick.com API key"
 
     volumes:
       - .:/concertmon

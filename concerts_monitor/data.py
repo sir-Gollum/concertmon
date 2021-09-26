@@ -115,3 +115,9 @@ class BandsInTownEvent(Event):
         return False
 
 
+class SongkickEvent(BandsInTownEvent):
+    def parse_datetime(self, dt):
+        # Format: either '2018-11-17' or '2018-11-17 18:30:00'
+        if len(dt) == len('2018-01-01'):
+            return datetime.datetime.strptime(dt, '%Y-%m-%d')
+        return datetime.datetime.strptime(dt, '%Y-%m-%d %H:%M:%S')

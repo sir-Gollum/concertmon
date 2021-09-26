@@ -5,6 +5,7 @@ import tabulate
 from concerts_monitor import last_fm
 from concerts_monitor import bandsintown
 from concerts_monitor import backstage
+from concerts_monitor import songkick
 
 
 def get_env_bool(name, default):
@@ -24,6 +25,7 @@ if __name__ == '__main__':
 
     USE_BANDSINTOWN = get_env_bool('USE_BANDSINTOWN', True)
     USE_BACKSTAGE = get_env_bool('USE_BACKSTAGE', True)
+    USE_SONGKICK = get_env_bool('USE_SONGKICK', True)
 
     bands = last_fm.get_top_bands(LASTFM_PAGES_TO_FETCH, LASTFM_USERNAME, LASTFM_API_KEY)
     if os.environ.get('DEBUG_BANDS'):
@@ -53,6 +55,22 @@ if __name__ == '__main__':
                 "Date": e.dt.strftime('%a, %d.%m.%Y %H:%M'),
             })
 
+    # Songkick
+    sk_report = []
+    if USE_SONGKICK:
+        api_key = os.environ['SONGKICK_API_KEY']
+        sk_events = songkick.check_bands(bands=whitelisted_bands, api_key=api_key)
+        sk_events = [e for e in sk_events if e.is_interesting(countries=COUNTRIES, cities=CITIES)]
+        sk_events.sort(key=lambda x: x.dt)
+
+        for e in sk_events:
+            sk_report.append({
+                'Play Count': e.bands.playcount,
+                'Bands': e.bands.name,
+                "Venue / Title": e.title,
+                "Date": e.dt.strftime('%a, %d.%m.%Y %H:%M'),
+            })
+
     # Backstage
     bs_report = []
     if USE_BACKSTAGE:
@@ -76,6 +94,12 @@ if __name__ == '__main__':
         print('Bandsintown events:')
         output_format = os.environ.get('OUTPUT_FORMAT_BANDSINTOWN', 'github')
         print(tabulate.tabulate(bit_report, headers='keys', tablefmt=output_format))
+        print()
+
+    if USE_SONGKICK:
+        print('Songkick events:')
+        output_format = os.environ.get('OUTPUT_FORMAT_SONGKICK', 'github')
+        print(tabulate.tabulate(sk_report, headers='keys', tablefmt=output_format))
         print()
 
     if USE_BACKSTAGE:
