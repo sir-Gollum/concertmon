@@ -87,7 +87,7 @@ def get_backstage_events(page_limit=None):
     is_last = False
     page_number = 2
     while not is_last:
-        time.sleep(1 + random.random() * 2)
+        time.sleep(3 + random.random() * 2)
         response = _get_page(page_number)
         rjson = response.json()
         is_last = rjson['isLast']
