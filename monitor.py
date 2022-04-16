@@ -85,7 +85,9 @@ if __name__ == '__main__':
             bs_report.append({
                 "Matches": '\n'.join([str(band) for band in m]) if m else '',
                 "Title": e.title.title(),
-                "Date": e.dt.strftime('%a, %d.%m.%Y %H:%M'),
+                "Date": e.dt.strftime('%a, %d.%m.%Y'),
+                "Venue": e.venue,
+                "Details": e.pretty_details(),
             })
 
     print("\n========== Reports ==========")

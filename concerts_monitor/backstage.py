@@ -1,45 +1,103 @@
 # coding: utf-8
-import os
+import time
+
 import requests
 from lxml import html
 import tabulate
-from .last_fm import get_top_bands
+import random
 from .data import BackstageEvent
 
 
-def get_backstage_events():
-    # We crawl this and don't know the number of pages in advance
-    page = -1
-    events = []
+def _get_page_events(html_content: str):
+    result = []
+    tree = html.fromstring(html_content)
 
-    while True:
-        found_on_page = 0
-        page += 1
-        url = 'http://backstage.info/veranstaltungen-2/live'
-        if page:
-            url += '/' + str(page)
+    for pid in tree.xpath('//*[@class="product-item-info" and @id]'):
+        details_items = [it.strip() for it in pid.xpath('.//h6/text()')]
+        details = ' '.join([
+            di for di in details_items
+            if di and not di.lower().startswith('presented by')
+        ])
+        details = ' '.join(details.split())
 
-        print(f'Requesting {url}...')
-        markup = requests.get(url).text
-        etree = html.fromstring(markup)
+        title_bands = pid.xpath('string(.//strong/a)').strip()
+        venue = pid.xpath('string(.//*[contains(@class, "eventlocation")])').strip()
+        link = pid.xpath('.//strong/a/@href')[0]
 
-        print(f'Parsing response from {url}...')
-        for el in etree.xpath('//div[@class="items"]/*/*'):
-            title = el.xpath('string((.//*[@title])[1]/@title)').strip()
-            bands = el.xpath('string(.//h5)').strip()
-            datetime = el.xpath('string((.//p)[1])').strip()
-
-            if not datetime or not title + bands:
+        date_str = None
+        for dt_elem in pid.xpath('.//*[contains(@class, "eventdate")]'):
+            day_elem = dt_elem.xpath('.//*[contains(@class, "day")]')[0]
+            if 'text-decoration: line-through' in day_elem.get('style', ''):
                 continue
-        
-            events.append(BackstageEvent(title=title, bands=bands, dt=datetime))
-            found_on_page += 1
 
-        print(f'Found {found_on_page} events on {url}')
-        if not found_on_page:
+            mon_elem = dt_elem.xpath('.//*[contains(@class, "month")]')[0]
+            year_elem = dt_elem.xpath('.//*[contains(@class, "year")]')[0]
+
+            event_date_str = ' '.join([
+                day_elem.text.strip(),
+                mon_elem.text.strip(),
+                year_elem.text.strip()
+            ])
+
+            if date_str:
+                print(f'Warning: multiple dates for {title_bands}: {date_str} and {event_date_str}')
+            date_str = event_date_str
+
+        event = BackstageEvent(
+            title=title_bands,
+            bands=title_bands,
+            venue=venue,
+            dt=date_str,
+            link=link,
+            details=details,
+        )
+
+        if event.dt is None:
+            # Drop cancelled events
+            print(f'Warning: no date for {event}')
+            continue
+
+        result.append(event)
+
+    return result
+
+
+def _get_page(page_number: int):
+    url = 'https://backstage.eu/veranstaltungen/live.html'
+    params = {'product_list_limit': 25}
+    if page_number > 1:
+        params.update({
+            'p': page_number,
+            'scrollAjax': 1,
+        })
+
+    print(f'Getting Backstage info with params {params}')
+    response = requests.get(url, params=params)
+    if response.status_code != 200:
+        print(f'Bad status on backstage crawl with params {params}: {response.status_code}')
+        return []
+
+    return response
+
+
+def get_backstage_events(page_limit=None):
+    response = _get_page(1)
+    result = _get_page_events(response.text)
+
+    is_last = False
+    page_number = 2
+    while not is_last:
+        time.sleep(1 + random.random() * 2)
+        response = _get_page(page_number)
+        rjson = response.json()
+        is_last = rjson['isLast']
+        page_number += 1
+        result += _get_page_events(rjson['html']['products'])
+
+        if page_limit and page_number > page_limit:
             break
 
-    return events
+    return result
 
 
 def sort_and_deduplicate_events(events):
@@ -53,28 +111,17 @@ def sort_and_deduplicate_events(events):
 
 
 if __name__ == '__main__':
-    LASTFM_USERNAME = os.environ['LASTFM_USERNAME']
-    LASTFM_API_KEY = os.environ['LASTFM_API_KEY'] 
-    LASTFM_PAGES_TO_FETCH = 5
-
-    bands = get_top_bands(LASTFM_PAGES_TO_FETCH, LASTFM_USERNAME, LASTFM_API_KEY)
-    print(f'Got {len(bands)} bands')
-    events = sort_and_deduplicate_events(get_backstage_events())
+    events = sort_and_deduplicate_events(get_backstage_events(4))
     print(f'Got {len(events)} events')
-
-    with open(os.path.join(os.path.dirname(__file__), 'bands_blacklist.txt')) as f:    
-        blacklist = set([l.strip() for l in f.read().split(u'\n')])
-
-    print('Filtering blacklist...')
-    whitelisted_bands = [b for b in bands if b.name not in blacklist]
-    print(f'Left with {len(whitelisted_bands)} after filtering')
 
     table = []
     for e in events:
         table.append({
-            '!!!': '!!!' if e.is_interesting(whitelisted_bands) else '',
             'Title': e.title.title(),
-            'Date': e.dt.strftime('%a, %d.%m.%Y %H:%M')
+            'Date': e.dt.strftime('%a, %d.%m.%Y %H:%M'),
+            'Link': e.link,
+            'Venue': e.venue,
+            'Details': e.details,
         })
 
     print("Events:")

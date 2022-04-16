@@ -1,6 +1,7 @@
 # coding: utf-8
 import datetime
-from typing import Union, List
+import re
+from typing import Union, List, Optional
 
 
 class Band(object):
@@ -17,13 +18,27 @@ class Band(object):
 
 
 class Event(object):
-    def __init__(self, title: str, bands: Union[str, Band], dt: str, country: str='Germany', city: str='Munich'):
+    def __init__(
+            self,
+            title: str,
+            bands: Union[str, Band],
+            dt: str,
+            country: str = 'Germany',
+            city: str = 'Munich',
+            venue: Optional[str] = None,
+            link: Optional[str] = None,
+            details: Optional[str] = None,
+    ):
         self.title = title
-        # `Band` in case of bandsintown, str in case of backstage and other similar sites where we go from events
+        # `Band` in case of bandsintown,
+        # str in case of backstage and other similar sites where we go from events
         self.bands = bands
         self.country = country
         self.city = city
+        self.venue = venue
         self.dt = self.parse_datetime(dt)
+        self.link = link
+        self.details = details
 
     def parse_datetime(self, dt):
         raise NotImplementedError('Should be implemented in a child class')
@@ -52,15 +67,11 @@ class BackstageEvent(Event):
         return bool(self.match_favourite(favourite_bands))
 
     def parse_datetime(self, dt):
+        if dt is None:
+            return None
+
         result = dt
         for substr, replacement in (
-            ('Montag, ', ''),
-            ('Dienstag, ', ''),
-            ('Mittwoch, ', ''),
-            ('Donnerstag, ', ''),
-            ('Freitag, ', ''),
-            ('Samstag, ', ''),
-            ('Sonntag, ', '',),
             ('. Januar ', '.01.'),
             ('. Februar ', '.02.'),
             ('. März ', '.03.'),
@@ -73,18 +84,23 @@ class BackstageEvent(Event):
             ('. Oktober ', '.10.'),
             ('. November ', '.11.'),
             ('. Dezember ', '.12.'),
-            ('Beginn: ', ''),
-            (' Uhr', '',)
         ):
             result = result.replace(substr, replacement)
         try:
-            result = datetime.datetime.strptime(result, '%d.%m.%Y %H:%M')
+            result = datetime.datetime.strptime(result, '%d.%m.%Y')
         except:
             print(f'Failed parsing date "{dt}". Attempted to parse "{result}"')
             result = datetime.datetime.now()
-            # raise
 
         return result
+
+    def pretty_details(self):
+        if not self.details:
+            return ''
+
+        parts = re.split(r'(\. | \| )', self.details)
+        parts = [p.strip() for p in parts if p not in ('. ', ' | ')]
+        return '\n'.join(parts)
 
 
 class BandsInTownEvent(Event):
