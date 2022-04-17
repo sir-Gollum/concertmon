@@ -48,12 +48,14 @@ if __name__ == '__main__':
         bit_events.sort(key=lambda x: x.dt)
 
         for e in bit_events:
-            bit_report.append({
-                'Play Count': e.bands.playcount,
-                'Bands': e.bands.name,
-                "Venue / Title": e.title,
-                "Date": e.dt.strftime('%a, %d.%m.%Y %H:%M'),
-            })
+            bit_report.append(
+                {
+                    'Play Count': e.bands.playcount,
+                    'Bands': e.bands.name,
+                    "Venue / Title": e.title,
+                    "Date": e.dt.strftime('%a, %d.%m.%Y %H:%M'),
+                }
+            )
 
     # Songkick
     sk_report = []
@@ -64,12 +66,14 @@ if __name__ == '__main__':
         sk_events.sort(key=lambda x: x.dt)
 
         for e in sk_events:
-            sk_report.append({
-                'Play Count': e.bands.playcount,
-                'Bands': e.bands.name,
-                "Venue / Title": e.title,
-                "Date": e.dt.strftime('%a, %d.%m.%Y %H:%M'),
-            })
+            sk_report.append(
+                {
+                    'Play Count': e.bands.playcount,
+                    'Bands': e.bands.name,
+                    "Venue / Title": e.title,
+                    "Date": e.dt.strftime('%a, %d.%m.%Y %H:%M'),
+                }
+            )
 
     # Backstage
     bs_report = []
@@ -82,13 +86,15 @@ if __name__ == '__main__':
             if not m or 'abgesagt' in e.title.lower():
                 continue
 
-            bs_report.append({
-                "Matches": '\n'.join([str(band) for band in m]) if m else '',
-                "Title": e.title.title(),
-                "Date": e.dt.strftime('%a, %d.%m.%Y'),
-                "Venue": e.venue,
-                "Details": e.pretty_details(),
-            })
+            bs_report.append(
+                {
+                    "Matches": '\n'.join([str(band) for band in m]) if m else '',
+                    "Title": e.title.title(),
+                    "Date": e.dt.strftime('%a, %d.%m.%Y'),
+                    "Venue": e.venue,
+                    "Details": e.pretty_details(),
+                }
+            )
 
     print("\n========== Reports ==========")
     if USE_BANDSINTOWN:

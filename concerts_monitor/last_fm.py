@@ -17,7 +17,7 @@ def get_top_bands(pages_to_fetch, lastfm_username, lastfm_api_key):
             'api_key': lastfm_api_key,
             'format': 'json',
             'period': 'overall',
-            'page': page_idx+1,
+            'page': page_idx + 1,
         }
         futures.append((future_session.get(url, params=params), page_idx))
 

@@ -20,10 +20,7 @@ def check_bands(bands, email):
             encoded_name = quote(b.name)
             url = f'https://rest.bandsintown.com/artists/{encoded_name}/events'
 
-            params = {
-                'api_version': '3.0',
-                'app_id': f'sirg-parser-3({email})'
-            }
+            params = {'api_version': '3.0', 'app_id': f'sirg-parser-3({email})'}
             resp = requests.get(url, params=params)
             if resp.status_code in {403, 404}:
                 print(f'Response {resp.status_code}: band={b}, url={url}')
@@ -32,10 +29,7 @@ def check_bands(bands, email):
             try:
                 print(f'Response: {resp.text[:100].strip()}')
 
-                if (
-                    '{warn=Not found}' in resp.text 
-                    or '"errorMessage": "[NotFound]' in resp.text
-                ):
+                if '{warn=Not found}' in resp.text or '"errorMessage": "[NotFound]' in resp.text:
                     print(f'Not found: {b}')
                     continue
 
@@ -56,13 +50,15 @@ def check_bands(bands, email):
                         print(f'Got a KeyError {e} checking {concert}')
                         continue
 
-                    result.append(BandsInTownEvent(
-                        title=title,
-                        bands=b,
-                        dt=datetime,
-                        country=country,
-                        city=city,
-                    ))
+                    result.append(
+                        BandsInTownEvent(
+                            title=title,
+                            bands=b,
+                            dt=datetime,
+                            country=country,
+                            city=city,
+                        )
+                    )
             except json.decoder.JSONDecodeError as e:
                 print(f'Got a json decode error on {b}, skipping')
                 continue

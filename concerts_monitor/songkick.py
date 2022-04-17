@@ -16,11 +16,7 @@ def check_bands(bands, api_key):
         print(f'Checking Sonkick for band "{b.name}"...')
         url = 'https://api.songkick.com/api/3.0/events.json'
         for page in range(1, 100):
-            params = {
-                'artist_name': b.name,
-                'page': page,
-                'apikey': api_key
-            }
+            params = {'artist_name': b.name, 'page': page, 'apikey': api_key}
 
             resp = requests.get(url, params=params)
 
@@ -49,13 +45,9 @@ def check_bands(bands, api_key):
                     if concert['start']['time']:
                         datetime += f" {concert['start']['time']}"
 
-                    result.append(SongkickEvent(
-                        title=title,
-                        bands=b,
-                        dt=datetime,
-                        country=country,
-                        city=city
-                    ))
+                    result.append(
+                        SongkickEvent(title=title, bands=b, dt=datetime, country=country, city=city)
+                    )
 
                 if rj['resultsPage']['perPage'] * page >= rj['resultsPage']['totalEntries']:
                     break
@@ -72,4 +64,3 @@ def check_bands(bands, api_key):
                 print(f'Got an error {type(e)}: {e}')
 
     return result
-

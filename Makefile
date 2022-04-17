@@ -26,4 +26,3 @@ image:
 ## Run the monitor in docker, using compose for env vars
 compose:
 	docker-compose up
-

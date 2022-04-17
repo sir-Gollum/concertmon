@@ -19,15 +19,15 @@ class Band(object):
 
 class Event(object):
     def __init__(
-            self,
-            title: str,
-            bands: Union[str, Band],
-            dt: str,
-            country: str = 'Germany',
-            city: str = 'Munich',
-            venue: Optional[str] = None,
-            link: Optional[str] = None,
-            details: Optional[str] = None,
+        self,
+        title: str,
+        bands: Union[str, Band],
+        dt: str,
+        country: str = 'Germany',
+        city: str = 'Munich',
+        venue: Optional[str] = None,
+        link: Optional[str] = None,
+        details: Optional[str] = None,
     ):
         self.title = title
         # `Band` in case of bandsintown,

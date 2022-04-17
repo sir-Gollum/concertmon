@@ -14,10 +14,9 @@ def _get_page_events(html_content: str):
 
     for pid in tree.xpath('//*[@class="product-item-info" and @id]'):
         details_items = [it.strip() for it in pid.xpath('.//h6/text()')]
-        details = ' '.join([
-            di for di in details_items
-            if di and not di.lower().startswith('presented by')
-        ])
+        details = ' '.join(
+            [di for di in details_items if di and not di.lower().startswith('presented by')]
+        )
         details = ' '.join(details.split())
 
         title_bands = pid.xpath('string(.//strong/a)').strip()
@@ -33,11 +32,9 @@ def _get_page_events(html_content: str):
             mon_elem = dt_elem.xpath('.//*[contains(@class, "month")]')[0]
             year_elem = dt_elem.xpath('.//*[contains(@class, "year")]')[0]
 
-            event_date_str = ' '.join([
-                day_elem.text.strip(),
-                mon_elem.text.strip(),
-                year_elem.text.strip()
-            ])
+            event_date_str = ' '.join(
+                [day_elem.text.strip(), mon_elem.text.strip(), year_elem.text.strip()]
+            )
 
             if date_str:
                 print(f'Warning: multiple dates for {title_bands}: {date_str} and {event_date_str}')
@@ -66,10 +63,12 @@ def _get_page(page_number: int):
     url = 'https://backstage.eu/veranstaltungen/live.html'
     params = {'product_list_limit': 25}
     if page_number > 1:
-        params.update({
-            'p': page_number,
-            'scrollAjax': 1,
-        })
+        params.update(
+            {
+                'p': page_number,
+                'scrollAjax': 1,
+            }
+        )
 
     print(f'Getting Backstage info with params {params}')
     response = requests.get(url, params=params)
@@ -116,13 +115,15 @@ if __name__ == '__main__':
 
     table = []
     for e in events:
-        table.append({
-            'Title': e.title.title(),
-            'Date': e.dt.strftime('%a, %d.%m.%Y %H:%M'),
-            'Link': e.link,
-            'Venue': e.venue,
-            'Details': e.details,
-        })
+        table.append(
+            {
+                'Title': e.title.title(),
+                'Date': e.dt.strftime('%a, %d.%m.%Y %H:%M'),
+                'Link': e.link,
+                'Venue': e.venue,
+                'Details': e.details,
+            }
+        )
 
     print("Events:")
     print(tabulate.tabulate(table, headers='keys', tablefmt='github'))
