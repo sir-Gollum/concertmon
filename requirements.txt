@@ -1,3 +1,6 @@
 tabulate
 requests-futures
 lxml
+jinja2
+pytest
+responses

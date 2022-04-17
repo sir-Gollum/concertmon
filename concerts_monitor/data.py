@@ -87,10 +87,10 @@ class BackstageEvent(Event):
         ):
             result = result.replace(substr, replacement)
         try:
-            result = datetime.datetime.strptime(result, '%d.%m.%Y')
+            result = datetime.datetime.strptime(result, '%d.%m.%Y').date()
         except:
             print(f'Failed parsing date "{dt}". Attempted to parse "{result}"')
-            result = datetime.datetime.now()
+            result = datetime.date.today()
 
         return result
 
