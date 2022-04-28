@@ -45,3 +45,5 @@ steps:
       from_secret: SMB_CREDS
     SONGKICK_API_KEY:
       from_secret: SONGKICK_API_KEY
+    USE_SONGKICK:
+      from_secret: USE_SONGKICK
