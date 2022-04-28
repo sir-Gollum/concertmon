@@ -1,4 +1,5 @@
 # coding: utf-8
+import json
 import time
 
 import requests
@@ -88,7 +89,15 @@ def get_backstage_events(page_limit=None):
     while not is_last:
         time.sleep(3 + random.random() * 2)
         response = _get_page(page_number)
-        rjson = response.json()
+        try:
+            rjson = response.json()
+        except json.JSONDecodeError:
+            print(
+                f'Bad JSON on backstage page {page_number}. '
+                f'Status={response.status_code}, text=={response.text}'
+            )
+            break
+
         is_last = rjson['isLast']
         page_number += 1
         result += _get_page_events(rjson['html']['products'])
