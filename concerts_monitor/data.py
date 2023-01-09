@@ -1,6 +1,7 @@
 # coding: utf-8
 import datetime
 import re
+import textwrap
 from typing import Union, List, Optional
 
 
@@ -100,7 +101,7 @@ class BackstageEvent(Event):
 
         parts = re.split(r'(\. | \| )', self.details)
         parts = [p.strip() for p in parts if p not in ('. ', ' | ')]
-        return '\n'.join(parts)
+        return textwrap.fill(' '.join(parts), 50)
 
 
 class BandsInTownEvent(Event):
