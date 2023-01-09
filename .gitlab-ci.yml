@@ -1,0 +1,62 @@
+variables:
+    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    IMAGE_TAG_LATEST: $CI_REGISTRY_IMAGE:latest
+
+stages:
+  - build
+  - test
+  - run
+
+build-image:
+  image:
+    name: quay.io/buildah/stable
+    pull_policy: if-not-present
+  stage: build
+  before_script:
+    - buildah login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - env
+    - |
+      if [ ${FORCE_IMAGE_BUILD:-false} = "false" ]; then
+        if [[ $(buildah manifest inspect $IMAGE_TAG 2>&1) != *"manifest unknown"* ]]; then
+          echo "Image already exists, skipping"
+          exit 0
+        fi
+      fi
+    - buildah bud -t $IMAGE_TAG .
+    - buildah push $IMAGE_TAG
+    - buildah tag $IMAGE_TAG $IMAGE_TAG_LATEST
+    - buildah push $IMAGE_TAG_LATEST
+
+
+run-tests:
+  image:
+    name: $IMAGE_TAG_LATEST
+    pull_policy: always
+  stage: test
+  script:
+    - pytest
+
+
+run-monitor:
+  image:
+    name: $IMAGE_TAG_LATEST
+    pull_policy: always
+  stage: run
+  variables:
+    TEMP: "concertmon-temp.txt"
+    OUTPUT: "concertmon-output-gl.txt"
+  script:
+    - rc=0
+    - python3 monitor.py > ${TEMP} 2>&1 | rc=$?
+    - cat ${TEMP}
+    - cat ${TEMP} | grep -A 50000 'Reports' > ${OUTPUT}  # 50k should be enough :)
+    - curl --upload-file "${OUTPUT}" -u ${SMB_CREDS} ${SMB_URL}
+    - |
+      if [ "$rc" -ne "0" ]; then
+        echo 'Monitor failed!'
+        exit "${rc}"
+      fi
+  artifacts:
+    paths:
+      - ${OUTPUT}
