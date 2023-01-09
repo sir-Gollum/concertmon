@@ -20,8 +20,8 @@ if __name__ == '__main__':
     LASTFM_API_KEY = os.environ['LASTFM_API_KEY']
     LASTFM_PAGES_TO_FETCH = int(os.environ.get('LASTFM_PAGES_TO_FETCH', '20'))
 
-    COUNTRIES = os.environ.get('COUNTRIES').split()
-    CITIES = os.environ.get('CITIES').split()
+    COUNTRIES = os.environ.get('COUNTRIES').split(',')
+    CITIES = os.environ.get('CITIES').split(',')
 
     USE_BANDSINTOWN = get_env_bool('USE_BANDSINTOWN', True)
     USE_BACKSTAGE = get_env_bool('USE_BACKSTAGE', True)
